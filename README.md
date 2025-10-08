@@ -11,4 +11,7 @@ Correction: Last chapter was Chapter 2
 Started Ch3, read about multidimensional grids and blocks. Grids and blocks are 3-D and are odered from highest dimensionality to lowest i.e (gridDim.z, gridDim.y, gridDim.z)
 
 * Day 4 
-Started reading on mapping data to multidimensional threads in Ch2
+Started reading on mapping data to multidimensional threads
+
+* Day 5 
+Cuda code for dynamic multidimensional threads (Ch 3)
