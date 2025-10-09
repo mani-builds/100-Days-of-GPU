@@ -14,4 +14,7 @@ Started Ch3, read about multidimensional grids and blocks. Grids and blocks are 
 Started reading on mapping data to multidimensional threads
 
 * Day 5 
-Cuda code for dynamic multidimensional threads (Ch 3)
+cuda code for dynamic multidimensional threads (Ch 3)
+
+* Day 6 
+finished dynamic multidimensional threads (Ch 3)
