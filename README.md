@@ -18,3 +18,5 @@ cuda code for dynamic multidimensional threads (Ch 3)
 
 * Day 6 
 finished dynamic multidimensional threads (Ch 3)
+
+* Day 7 Finished Umar Jamil's talk on GPU Mode
