@@ -20,3 +20,12 @@ cuda code for dynamic multidimensional threads (Ch 3)
 finished dynamic multidimensional threads (Ch 3)
 
 * Day 7 Finished Umar Jamil's talk on GPU Mode
+
+* Day 8
+Ran my first cuda code in colab and watched Elliot lecture
+
+* Day 9
+Watched 1 hr of Elliot Lecture
+
+* Day 10
+Finished Elliot lecture
