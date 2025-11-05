@@ -29,3 +29,6 @@ Watched 1 hr of Elliot Lecture
 
 * Day 10
 Finished Elliot lecture
+
+* Day 11, 12, 13, 14, 15
+Finished Ch 3 and set up colab notebook, started Ch4 and completed until 4.4
