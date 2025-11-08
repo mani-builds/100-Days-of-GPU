@@ -1,7 +1,10 @@
 * Vinay's advice (GPU performance architecht @ AMD)
 Focus on one of the four:
 1. CUDA-level programming (single GPU, multi GPU)
-*** Notes and tech stack:
+2. Inference or training platform optimization (mostly on multi GPU on a higher level like vllm, tensor rt,etc)
+3. Specific focus on compilers, graph optimization (CUDA computational graphs), llvm ir and similar
+4. General deep learning engineers on algorithmic level with CUDA experience
+*** Notes on the above roles:
    This role focuses on low-level GPU programming to accelerate compute-intensive tasks in ML/AI, such as writing custom kernels for operations not efficiently handled by higher-level libraries. Engineers here optimize memory access, parallelism, and synchronization to maximize GPU utilization. For single-GPU, it's about fine-grained kernel optimizations; for multi-GPU, it involves data parallelism, model parallelism, and communication across devices. This is hands-on, performance-critical work often in research or high-performance computing environments, like speeding up custom neural network layers or simulations.
 Required Tech Stack:
 
@@ -97,6 +100,7 @@ ML Algorithms, Systems
  - Elliot Arledge (https://x.com/elliotarledge): The cuda guy
 
 * Cuda companies
+
 - AsseblyAI 
 It's job description:
     Strong expertise in the Python ecosystem and major ML frameworks (PyTorch, JAX).
@@ -106,3 +110,10 @@ It's job description:
     Solid understanding of the deep learning lifecycle: model design, large-scale training, data processing pipelines, and inference deployment.
     Strong debugging, profiling, and optimization skills in large-scale distributed environments.
     Excellent communication and collaboration skills, with the ability to clearly prioritize and articulate impact-driven technical solutions.
+
+* Mohan's advice (Mavayya's friend)
+- Study the inference stacks that are being deployed on GPUs, TPUs.
+- Understand LLM inferencing workloads and how to to optimization and performance characterizaton. (you should be able to write optimized kernels)
+- Look at arxiv papers that do performance characterizaton of inference stacks.
+- Study the core tools and tech stacks they are working with.
+- Companies to lookout for Coreweave, Crusoe and their competitors.
