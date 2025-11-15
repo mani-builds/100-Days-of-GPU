@@ -35,3 +35,6 @@ Finished Ch 3 and set up colab notebook, started Ch4 and completed until 4.4
 
 * Day 16,17
 Finished simd arch and wraps in Ch 4 and exercises in Ch 3
+
+* Day 18, 19, 20
+Finished Ch4 and the exercises in chapter 4

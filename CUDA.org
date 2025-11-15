@@ -1,9 +1,25 @@
 * Vinay's advice (GPU performance architecht @ AMD)
 Focus on one of the four:
+Ref: [[https://grok.com/c/63efba58-6d46-481b-8c1c-04e49533ad23][Grok chat]]
 1. CUDA-level programming (single GPU, multi GPU)
+   OSS Repos:
+    [[https://github.com/NVIDIA/CUDALibrarySamples][CUDA Library Samples]] : Samples for cuBLAS, cuFFT, etc. Contribute new use cases or optimizations for single/multi-GPU scenarios. Active.
+    [[https://github.com/NVIDIA/cccl][CUDA Core Compute Libraries]] : CUDA Core Compute Libraries (Thrust, CUB, libcudacx). Ideal for parallel algorithm improvements, warp-level primitives, or multi-GPU extensions. Very active and also has a discord.
+    [[https://github.com/NVIDIA/open-gpu-kernel-modules][Open GPU Kernel Modules]] : Open-source NVIDIA Linux GPU kernel modules. Contribute to low-level driver fixes, multi-GPU support, or performance patches
 2. Inference or training platform optimization (mostly on multi GPU on a higher level like vllm, tensor rt,etc)
+   OSS Repos:
+    [[https://github.com/vllm-project/vllm][vLLM]] : High-throughput LLM inference with PagedAttention; contribute to multi-GPU serving, new quant methods, or integrations. Very active
+    [[https://github.com/NVIDIA/TensorRT/issues][TensorRT]] : NVIDIA's LLM inference optimizer; add custom kernels, multi-GPU/node support, or quantization plugins
+    [[https://github.com/sgl-project][SGLang]] : Fast serving framework; optimizations for MoE/VLM models on multi-GPU
+    [[https://github.com/triton-inference-server/server][Triton Inference Server]] : Modular inference serving; integrate with vLLM/TensorRT, optimize backends for multi-GPU
+    [[https://github.com/InternLM/lmdeploy][InternLM/Imdeploy]] : Fast LLM deployment; contribute to turbo-mode inference or multi-GPU pipelines
 3. Specific focus on compilers, graph optimization (CUDA computational graphs), llvm ir and similar
 4. General deep learning engineers on algorithmic level with CUDA experience
+   OSS Repos:
+    [[https://github.com/pytorch/pytorch][pytorch/pytorch]]: Core framework; add CUDA kernels, distributed training, or new nn modules.
+    [[https://github.com/jax-ml/jax][google/jax]]: NumPy-like with XLA/CUDA; custom ops or parallel primitives.
+    [[https://github.com/huggingface/transformers][huggingface/transformers]]: Model hub; CUDA-optimized implementations or new architectures.
+    deepmind/jmp or Flax/Haiku ecosystems (part of JAX): Algorithmic layers with CUDA.
 *** Notes on the above roles:
    This role focuses on low-level GPU programming to accelerate compute-intensive tasks in ML/AI, such as writing custom kernels for operations not efficiently handled by higher-level libraries. Engineers here optimize memory access, parallelism, and synchronization to maximize GPU utilization. For single-GPU, it's about fine-grained kernel optimizations; for multi-GPU, it involves data parallelism, model parallelism, and communication across devices. This is hands-on, performance-critical work often in research or high-performance computing environments, like speeding up custom neural network layers or simulations.
 Required Tech Stack:
@@ -60,7 +76,8 @@ General: Git for version control, Docker for reproducibility, basic profiling wi
 - PyTorch
 - Python
   These roles are typically called ML Infrastructure/ ML Platform Engineers / GPU Performance engineers
-** ML/AI infrastructure engineer, ML/AI platform engineer
+
+* ML/AI infrastructure engineer, ML/AI platform engineer
 Source: https://huyenchip.com/ml-interviews-book/contents/1.1.3.4-other-technical-roles-in-ml-production.html
 
 Because ML is resource-intensive, it relies on infrastructures that scale. Companies with mature ML pipelines often have infrastructure teams to help them build out the infrastructure for ML. Valuable skills for ML infrastructure/platform engineers include familiarity with parallelism, distributed computing, and low-level optimization.
@@ -100,8 +117,7 @@ ML Algorithms, Systems
  - Elliot Arledge (https://x.com/elliotarledge): The cuda guy
 
 * Cuda companies
-
-- AsseblyAI 
+- AsseblyAI
 It's job description:
     Strong expertise in the Python ecosystem and major ML frameworks (PyTorch, JAX).
     Experience with lower-level programming (C++ or Rust preferred).
