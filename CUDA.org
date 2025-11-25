@@ -1,4 +1,5 @@
 * Vinay's advice (GPU performance architecht @ AMD)
+
 Focus on one of the four:
 Ref: [[https://grok.com/c/63efba58-6d46-481b-8c1c-04e49533ad23][Grok chat]]
 1. CUDA-level programming (single GPU, multi GPU)
