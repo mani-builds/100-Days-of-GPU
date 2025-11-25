@@ -38,3 +38,6 @@ Finished simd arch and wraps in Ch 4 and exercises in Ch 3
 
 * Day 18, 19, 20
 Finished Ch4 and the exercises in chapter 4
+
+* Day 21,22,23,24,25,26,27
+Started Ch 5 and finished Ch 5 until problem 8 in exercises.
