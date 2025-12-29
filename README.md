@@ -44,3 +44,6 @@ Started Ch 5 and finished Ch 5 until problem 8 in exercises.
 
 * Day 28,29
 Finished the rest of the problems in Ch5 and Section of Ch6
+
+* Day 30, 31, 32, 33, 34, 35, 36
+Finished until Ch6. Next Ch6 exercises
