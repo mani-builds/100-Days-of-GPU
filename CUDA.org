@@ -7,6 +7,13 @@ Ref: [[https://grok.com/c/63efba58-6d46-481b-8c1c-04e49533ad23][Grok chat]]
     [[https://github.com/NVIDIA/CUDALibrarySamples][CUDA Library Samples]] : Samples for cuBLAS, cuFFT, etc. Contribute new use cases or optimizations for single/multi-GPU scenarios. Active.
     [[https://github.com/NVIDIA/cccl][CUDA Core Compute Libraries]] : CUDA Core Compute Libraries (Thrust, CUB, libcudacx). Ideal for parallel algorithm improvements, warp-level primitives, or multi-GPU extensions. Very active and also has a discord.
     [[https://github.com/NVIDIA/open-gpu-kernel-modules][Open GPU Kernel Modules]] : Open-source NVIDIA Linux GPU kernel modules. Contribute to low-level driver fixes, multi-GPU support, or performance patches
+    Other OSS repos:
+        https://github.com/rapidsai/cuml [cuML]: C++,cuda,Python, Very active. ML algorithms on GPU.
+        https://github.com/cupy/cupy : Python mostly, active. NumPy and SciPy for GPUs.
+        https://github.com/rapidsai/raft : Cuda mostly, active. CUDA accelerated algos for ML.
+        https://github.com/hpcaitech/ColossalAI : Python mostly, not super active. Data parallelism in AI, tools for distributed ML
+
+
 2. Inference or training platform optimization (mostly on multi GPU on a higher level like vllm, tensor rt,etc)
    OSS Repos:
     [[https://github.com/vllm-project/vllm][vLLM]] : High-throughput LLM inference with PagedAttention; contribute to multi-GPU serving, new quant methods, or integrations. Very active
@@ -21,7 +28,10 @@ Ref: [[https://grok.com/c/63efba58-6d46-481b-8c1c-04e49533ad23][Grok chat]]
     [[https://github.com/jax-ml/jax][google/jax]]: NumPy-like with XLA/CUDA; custom ops or parallel primitives.
     [[https://github.com/huggingface/transformers][huggingface/transformers]]: Model hub; CUDA-optimized implementations or new architectures.
     deepmind/jmp or Flax/Haiku ecosystems (part of JAX): Algorithmic layers with CUDA.
+
+
 *** Notes on the above roles:
+1. CUDA-level programming (single GPU, multi GPU)
    This role focuses on low-level GPU programming to accelerate compute-intensive tasks in ML/AI, such as writing custom kernels for operations not efficiently handled by higher-level libraries. Engineers here optimize memory access, parallelism, and synchronization to maximize GPU utilization. For single-GPU, it's about fine-grained kernel optimizations; for multi-GPU, it involves data parallelism, model parallelism, and communication across devices. This is hands-on, performance-critical work often in research or high-performance computing environments, like speeding up custom neural network layers or simulations.
 Required Tech Stack:
 
@@ -31,6 +41,7 @@ Libraries for Compute: cuBLAS (linear algebra), cuDNN (deep neural networks), cu
 Multi-GPU Specific: NCCL (collective communications), NVLink/NVSwitch for interconnects, MPI or Horovod for distributed setups.
 Debugging/Profiling: Nsight Compute/Systems, CUDA-GDB, nvprof.
 Integration: PyTorch/TensorFlow CUDA extensions (e.g., via torch.utils.cpp_extension or tf.custom_ops).
+
 2. Inference or training platform optimization (mostly on multi GPU on a higher level like vllm, tensor rt,etc)
    This role involves optimizing ML platforms for efficient training or inference at scale, focusing on system-level improvements rather than kernel writing. Engineers here build pipelines that handle large models (e.g., LLMs) across multiple GPUs, reducing latency, throughput bottlenecks, and costs. For training, it's about distributed strategies; for inference, it's quantization, batching, and serving. This is common in production environments like cloud services or edge deployment, ensuring models run reliably at high volumes.
 Required Tech Stack:
@@ -118,15 +129,88 @@ ML Algorithms, Systems
  - Elliot Arledge (https://x.com/elliotarledge): The cuda guy
 
 * Cuda companies
-- AsseblyAI
-It's job description:
-    Strong expertise in the Python ecosystem and major ML frameworks (PyTorch, JAX).
-    Experience with lower-level programming (C++ or Rust preferred).
-    Deep understanding of GPU acceleration (CUDA, profiling, kernel-level optimization); TPU experience is a strong plus.
-    Proven ability to accelerate deep learning workloads using compiler frameworks, graph optimizations, and parallelization strategies.
-    Solid understanding of the deep learning lifecycle: model design, large-scale training, data processing pipelines, and inference deployment.
-    Strong debugging, profiling, and optimization skills in large-scale distributed environments.
-    Excellent communication and collaboration skills, with the ability to clearly prioritize and articulate impact-driven technical solutions.
+** Role: GPU Kernel Engineer (Baseten)
+  Core Engineering Responsibilities
+
+    Design and implement high-performance GPU kernels for key ML operations, including matrix multiplications, attention mechanisms, and mixture-of-experts routing
+    Write and optimize code using CUDA, PTX assembly, and architecture-specific techniques
+    Apply advanced performance optimization methods such as memory coalescing, warp-level programming, tensor core acceleration, and compute/memory overlap
+
+Performance & Innovation
+
+    Implement cutting-edge features like quantization (FP8/FP4), sparsity, and compute/communication overlap
+    Identify and resolve performance bottlenecks using tools like Nsight Systems, Nsight Compute, and Torch Profiler
+    Collaborate with research teams to productionize theoretical advancements
+
+Impact & Collaboration
+
+    Contribute to internal and open-source GPU libraries
+
+Requirements
+
+    1–5 years of experience in CUDA development
+    Strong understanding of GPU architecture and programming paradigms:
+        Memory hierarchy (global, shared, registers, L1/L2 cache)
+        Thread/block/grid organization
+        Synchronization techniques and race condition mitigation
+    Proficient in C++ and GPU performance profiling tools
+    Knowledge of:
+        CUDA C++ API
+        Memory access patterns and bandwidth optimization
+        Numerical precision and quantization strategies
+        Modern GPU features (e.g., tensor cores, async operations)
+
+NICE TO HAVE
+
+    Experience with Transformer models and attention optimization (e.g., Flash Attention)
+    Familiarity with GPU kernel libraries: Cutlass, Triton, Thrust, CUB
+    Background in GEMM tuning and distributed/multi-GPU compute
+    Contributions to open-source GPU projects
+
+** Cuda Kernel Engineer (Pragmatike)
+What Youll Do
+
+    Design, implement, and optimize custom CUDA kernels for NVIDIA GPUs, with a focus on maximizing occupancy, memory throughput, and warp efficiency.
+    Profile GPU workloads using tools such as Nsight Compute, Nsight Systems, nvprof, and CUDA‐MEMCHECK.
+    Analyze and eliminate performance bottlenecks including warp divergence, uncoalesced memory access, register pressure, and PCIe transfer overhead.
+    Improve GPU memory pipelines (global, shared, L2, texture memory) and ensure proper memory coalescing.
+    Collaborate closely with AI systems, model acceleration, and backend distributed systems teams.
+    Contribute to GPU architecture decisions, kernel libraries, and internal performance-engineering best practices.
+
+
+What Were Looking For
+
+    Proven track record building NVIDIA CUDA kernels from scratchnot just calling existing libraries.
+    Strong ability to optimize kernels (tiling strategies, occupancy tuning, shared memory design, warp scheduling).
+    Deep understanding of CUDA threads, warps, blocks, and grids, GPU memory hierarchy and memory coalescing, as well as warp divergence (how to detect, analyze, and mitigate it)
+    Experience diagnosing PCIe bottlenecks and optimizing host-device transfers (pinned memory, streams, batching, overlap).
+    Familiarity with C++, CUDA runtime APIs, and GPU debugging/profiling tooling.
+
+
+Bonus Points
+
+    Experience with multi-GPU or distributed GPU systems (NCCL, NVLink, MIG).
+    Background in GPU acceleration for ML frameworks or HPC workloads.
+    Knowledge of model inference optimization (TensorRT, CUDA Graphs, CUTLASS).
+    Exposure to compiler-level optimization or PTX/SASS analysis.
+** AI Performance Engineer (Parasail)
+Responsibilities
+
+    Add support for new LLMs, working across the stack from low-level GPU kernels to Kubernetes-based deployments.
+    Contribute to cutting-edge open-source LLM engines such as vLLM or SGLang to extend their capabilities and performance (e.g. use Python technologies to improve API servers or request schedulers).
+    Operate closer to the hardware, focusing on building and integrating solutions to boost performance and hardware utilization. For example, improve attention backends like FlashAttention or FlashInfer by contributing to their development and optimization, or by integrating their solutions into vLLM.
+    Improve LLM performance using advanced algorithmic solutions such as speculative decoding, quantization, or other state-of-the-art techniques. Understand the impact of such techniques in model quality.
+
+Qualifications
+
+    Expertise in GPU computing, including low-level platforms such as CUDA, ROCm, XLA, PyTorch, Jax, etc.
+    Background in performance analysis and optimization of AI/HPC workloads (e.g. profiling or theoretical analysis of Flops and bandwidth).
+    Experience in writing GPU kernels using technologies like CUDA, CUTLASS, Triton.
+    Strength in Python and C++.
+    Demonstrated contributions to open-source projects. Contributions to inference engines such as vLLM is a strong plus.
+    A production-oriented mindset emphasizing robust, scalable code suitable for enterprise-grade applications.
+    A relentless curiosity about cutting-edge AI technologies combined with a passion for solving complex problems.
+
 
 * Mohan's advice (Mavayya's friend)
 - Study the inference stacks that are being deployed on GPUs, TPUs.
