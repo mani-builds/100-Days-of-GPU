@@ -211,6 +211,8 @@ Qualifications
     A production-oriented mindset emphasizing robust, scalable code suitable for enterprise-grade applications.
     A relentless curiosity about cutting-edge AI technologies combined with a passion for solving complex problems.
 
+** How to search?
+Search for inference or model optimization roles. There is still a demand for HPC developers but its a smaller industry compared to AI/ML, and usually industry specific.
 
 * Mohan's advice (Mavayya's friend)
 - Study the inference stacks that are being deployed on GPUs, TPUs.

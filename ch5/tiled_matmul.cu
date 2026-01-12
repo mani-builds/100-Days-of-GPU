@@ -37,7 +37,7 @@ int main() {
     // Assuming multiplication of square matrices
     int width_h;
     float *M_h, *N_h, *P_h;
-    width_h = 32;
+    width_h = 4;
 
     M_h = (float *)malloc(width_h * width_h * sizeof(float));
     N_h = (float *)malloc(width_h * width_h * sizeof(float));
@@ -58,9 +58,9 @@ int main() {
     cudaMemcpy(N_d, N_h, width_h * width_h * sizeof(float),
                cudaMemcpyHostToDevice);
 
-    dim3 threadsPerBlock(2, 2);
-    dim3 blocksPerGrid((width_h + threadsPerBlock.x - 1) / threadsPerBlock.x,
-                       (width_h + threadsPerBlock.y - 1) / threadsPerBlock.y);
+    dim3 threadsPerBlock(TILE_WIDTH, TILE_WIDTH);
+    dim3 blocksPerGrid((width_h + TILE_WIDTH - 1) / TILE_WIDTH,
+                       (width_h + TILE_WIDTH - 1) / TILE_WIDTH);
     matrixMulKernel<<<blocksPerGrid, threadsPerBlock>>>(M_d, N_d, P_d, width_h);
     cudaMemcpy(P_h, P_d, width_h * width_h * sizeof(float),
                cudaMemcpyDeviceToHost);
