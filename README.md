@@ -47,3 +47,6 @@ Finished the rest of the problems in Ch5 and Section of Ch6
 
 * Day 30, 31, 32, 33, 34, 35, 36
 Finished until Ch6. Next Ch6 exercises
+
+* Day 37, 38
+Finished Ch6 exercises
