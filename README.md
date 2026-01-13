@@ -50,3 +50,6 @@ Finished until Ch6. Next Ch6 exercises
 
 * Day 37, 38
 Finished Ch6 exercises
+
+* Day 39
+Started ch7 and finished 1d and 2 d convolution
