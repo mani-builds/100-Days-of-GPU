@@ -13,7 +13,6 @@ Ref: [[https://grok.com/c/63efba58-6d46-481b-8c1c-04e49533ad23][Grok chat]]
         https://github.com/rapidsai/raft : Cuda mostly, active. CUDA accelerated algos for ML.
         https://github.com/hpcaitech/ColossalAI : Python mostly, not super active. Data parallelism in AI, tools for distributed ML
 
-
 2. Inference or training platform optimization (mostly on multi GPU on a higher level like vllm, tensor rt,etc)
    OSS Repos:
     [[https://github.com/vllm-project/vllm][vLLM]] : High-throughput LLM inference with PagedAttention; contribute to multi-GPU serving, new quant methods, or integrations. Very active
@@ -21,7 +20,9 @@ Ref: [[https://grok.com/c/63efba58-6d46-481b-8c1c-04e49533ad23][Grok chat]]
     [[https://github.com/sgl-project][SGLang]] : Fast serving framework; optimizations for MoE/VLM models on multi-GPU
     [[https://github.com/triton-inference-server/server][Triton Inference Server]] : Modular inference serving; integrate with vLLM/TensorRT, optimize backends for multi-GPU
     [[https://github.com/InternLM/lmdeploy][InternLM/Imdeploy]] : Fast LLM deployment; contribute to turbo-mode inference or multi-GPU pipelines
+
 3. Specific focus on compilers, graph optimization (CUDA computational graphs), llvm ir and similar
+
 4. General deep learning engineers on algorithmic level with CUDA experience
    OSS Repos:
     [[https://github.com/pytorch/pytorch][pytorch/pytorch]]: Core framework; add CUDA kernels, distributed training, or new nn modules.
@@ -88,6 +89,9 @@ General: Git for version control, Docker for reproducibility, basic profiling wi
 - PyTorch
 - Python
   These roles are typically called ML Infrastructure/ ML Platform Engineers / GPU Performance engineers
+
+* Extra skills
+- Distributed/multi-GPU related: InfiniBand, NCCL  
 
 * ML/AI infrastructure engineer, ML/AI platform engineer
 Source: https://huyenchip.com/ml-interviews-book/contents/1.1.3.4-other-technical-roles-in-ml-production.html

@@ -1,3 +1,4 @@
+
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,7 +16,7 @@ __global__ void matMulCoalesceKernel(float *A, float *B, float *C, int width) {
 
     int row = by * TILE_WIDTH + ty;
     int col = bx * TILE_WIDTH + tx;
-    printf("Row: %d, Col: %d\n", row, col);
+    // printf("Row: %d, Col: %d\n", row, col);
     float Pvalue = 0.0;
     for (int ph = 0; ph < width / TILE_WIDTH; ph++) {
 
@@ -26,22 +27,20 @@ __global__ void matMulCoalesceKernel(float *A, float *B, float *C, int width) {
         // SWAP tx and ty for the B matrix global index calculation
         // This ensures that threads with consecutive tx access consecutive
         // memory in B
-        if (((ph * TILE_WIDTH + tx) < width) && (bx * TILE_WIDTH + ty) < width)
-            Nds[tx][ty] =
-                B[(ph * TILE_WIDTH + tx) * width +
-                  (bx * TILE_WIDTH + ty)]; // Note that B is a Column-major
+        if ((col < width) && (ph * TILE_WIDTH + ty) < width)
+            Nds[ty][tx] =
+                B[(ph * TILE_WIDTH + ty) + col * width]; // Note that B is a Column-major
                                            // matrix, so this access changes
         else
-            Nds[tx][ty] = 0.0f;
+            Nds[ty][tx] = 0.0f;
 
-        printf("ty: %d, tx: %d\n", ty, tx);
-        printf("Mds: %f, Nds: %f\n", Mds[ty][tx], Nds[tx][ty]);
+        // printf("Row: %d, Col: %d\n", row, col);
+        // printf("Mds: %f, Nds: %f\n", Mds[ty][tx], Nds[tx][ty]);
         __syncthreads();
         for (int i = 0; i < TILE_WIDTH; i++) {
-            Pvalue += Mds[ty][i] * Nds[tx][i];
+            Pvalue += Mds[ty][i] * Nds[i][tx];
         }
-
-        printf("Pvalue: %f\n", Pvalue);
+        // printf("Pvalue: %f\n", Pvalue);
         __syncthreads();
     }
     if ((row < width) && (col < width)) {
@@ -61,24 +60,34 @@ int main() {
     C = (float *)malloc(width * width * sizeof(float));
 
     // A is a Row-major matrix
+    //  A =    [0.0, 1.0, 2.0, 3.0],
+    //         [4.0, 5.0, 6.0, 7.0],
+    //         [8.0, 9.0, 10.0, 11.0],
+    //         [12.0, 13.0, 14.0, 15.0]
     for (int i = 0; i < width * width; i++) {
         A[i] = (float)i;
     }
     // B is a Column-major matrix
+    //  B =    [0.0, 1.0, 2.0, 3.0],
+    //         [4.0, 5.0, 6.0, 7.0],
+    //         [8.0, 9.0, 10.0, 11.0],
+    //         [12.0, 13.0, 14.0, 15.0]
+
+
     float count = 0.0;
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < width; j++) {
             B[i + j * width] = (float)count++;
         }
     }
-    // printf("Values of A: ");
-    // for (int k = 0; k < width * width; k++) {
-    //     printf("%f\n", A[k]);
-    // }
-    // printf("Values of B: ");
-    // for (int k = 0; k < width * width; k++) {
-    //     printf("%f\n", B[k]);
-    // }
+    printf("Values of A: \n");
+    for (int k = 0; k < width * width; k++) {
+        printf("%f\n", A[k]);
+    }
+    printf("Values of B: \n");
+    for (int k = 0; k < width * width; k++) {
+        printf("%f\n", B[k]);
+    }
     float *A_d, *B_d, *C_d;
     cudaMalloc(&A_d, width * width * sizeof(float));
     cudaMalloc(&B_d, width * width * sizeof(float));
@@ -94,7 +103,7 @@ int main() {
                                                              width);
     cudaMemcpy(C, C_d, width * width * sizeof(float), cudaMemcpyDeviceToHost);
 
-    printf("Values of C: ");
+    printf("Values of C: \n");
     for (int k = 0; k < width * width; k++) {
         printf("%f\n", C[k]);
     }
@@ -108,3 +117,4 @@ int main() {
     free(C);
     return 0;
 }
+
