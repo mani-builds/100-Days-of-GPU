@@ -1,3 +1,4 @@
+#include <__clang_cuda_builtin_vars.h>
 #include <stdio.h>
 
 #define SECTION_SIZE 32
@@ -20,12 +21,15 @@ __global__ void Kogge_Stone_scan_kernel(float *x, float *y, int N) {
     __syncthreads(); // This barrier synchronization and 'temp' vairable is used to prevent
                      // write-after-read race condition that occurs when we try to write
                      // at the same location as we read from.
-    if (threadIdx.x >= stride) 
+
+
+     if (threadIdx.x >= stride)
       XY[threadIdx.x] = temp;
   }
   if (i < N){
     y[i] = XY[threadIdx.x];
   }
+
 }
 
 int main() {

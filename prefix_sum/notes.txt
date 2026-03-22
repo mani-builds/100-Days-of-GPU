@@ -1,0 +1,1 @@
+Note that all the kernels except the 'parallel_scan_arbitary_length.cu' are single thread-block kernels.
