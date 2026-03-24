@@ -21,7 +21,7 @@ __global__ void matMulCoalesceKernel(float *A, float *B, float *C, int width) {
     for (int ph = 0; ph < width / TILE_WIDTH; ph++) {
 
         if ((row < width) && (ph * TILE_WIDTH + tx) < width)
-            Mds[ty][tx] = A[row * width + (ph * TILE_WIDTH + tx)];
+            Mds[ty][tx] = A[row * width + ph * TILE_WIDTH + tx];
         else
             Mds[ty][tx] = 0.0f;
         // SWAP tx and ty for the B matrix global index calculation
@@ -29,7 +29,7 @@ __global__ void matMulCoalesceKernel(float *A, float *B, float *C, int width) {
         // memory in B
         if ((col < width) && (ph * TILE_WIDTH + ty) < width)
             Nds[ty][tx] =
-                B[col * width + (ph * TILE_WIDTH + ty)]; // Note that B is a Column-major
+                B[(ph * TILE_WIDTH + ty) + col * width]; // Note that B is a Column-major
                                            // matrix, so this access changes
         else
             Nds[ty][tx] = 0.0f;

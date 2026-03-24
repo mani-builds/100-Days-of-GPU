@@ -1,30 +1,32 @@
 #include <cmath>
 #include <stdio.h>
 
-#define SIZE 2048
+#define SIZE 4096
 
 __global__ void simple_reduction_kernel(float *input, int N, float *output) {
   int i = threadIdx.x;
 
-  // Optimization 1:
-  // Store the data in shared mem. Each thread loads two elements into the s mem.
-  // Since it's single thread block, shared mem should have space for all 2048 data
-  __shared__ float input_s[SIZE];
+  __shared__ float input_s[1024];
 
-  input_s[i] = input[i];
-  input_s[i + blockDim.x] = input[i + blockDim.x];
-  __syncthreads();
+  // Optimization
+  // We can further improve execution speed by keeping the partial results (reductions)
+  // in the shared memory
+  float max_value = -INFINITY;
+  for(int offset=0; offset <SIZE/blockDim.x ; offset++){
+   max_value = max(max_value, input[i + offset*blockDim.x]);
+  }
+  input_s[i] = max_value;
 
-  // Optimization 2:
-  // By having stride = blockDim.x, we reduce control divergence within
-  // the warps themselves until the last iteration of 'for' loop.
-  // This also helps us with memory coalescing, since each thread load elements
-  // relative to the thread indices
-  for (int stride = blockDim.x; stride >= 1; stride /= 2) {
+  // This further decreases the need to have large shared mem, and also processes
+  // more than the 'double' the blockDim number of elements, by keeping the partial
+  // results in shared mem of size blockDim (Note the SIZE = 4096 and blockDim = 1024)
+  // We need to have stride = blockDim.x/2
+  for (int stride = blockDim.x/2; stride >= 1; stride /= 2) {
+    __syncthreads(); // This takes care of synching for the shared mem too during
+                     // first iteration
     if (threadIdx.x < stride){
     input_s[i] = max(input_s[i], input_s[i+stride]);
     }
-    __syncthreads();
   }
 
   if (threadIdx.x == 0) {
@@ -52,7 +54,7 @@ int main() {
 
   cudaMemcpy(in, in_h, N*sizeof(float), cudaMemcpyHostToDevice);
 
-  int threads = N/2;
+  int threads = 1024;
   int blocksPerGrid = 1;
   simple_reduction_kernel<<<blocksPerGrid, threads>>>(in, N, out);
 

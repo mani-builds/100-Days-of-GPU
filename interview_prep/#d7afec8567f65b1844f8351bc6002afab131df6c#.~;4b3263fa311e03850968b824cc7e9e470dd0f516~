@@ -1,4 +1,3 @@
-#include <cmath>
 #include <stdio.h>
 
 #define SIZE 2048
@@ -10,17 +9,16 @@ __global__ void simple_reduction_kernel(float *input, int N, float *output) {
   // Store the data in shared mem. Each thread loads two elements into the s mem.
   // Since it's single thread block, shared mem should have space for all 2048 data
   __shared__ float input_s[SIZE];
-
   input_s[i] = input[i];
-  input_s[i + blockDim.x] = input[i + blockDim.x];
+  // input_s[i + blockDim.x] = input[i+blockDim.x];
   __syncthreads();
 
   // Optimization 2:
-  // By having stride = blockDim.x, we reduce control divergence within
+  // By having stride = blockDim.x/2, we reduce control divergence within
   // the warps themselves until the last iteration of 'for' loop.
   // This also helps us with memory coalescing, since each thread load elements
   // relative to the thread indices
-  for (int stride = blockDim.x; stride >= 1; stride /= 2) {
+  for (int stride = blockDim.x/2; stride >= 1; stride /= 2) {
     if (threadIdx.x < stride){
     input_s[i] = max(input_s[i], input_s[i+stride]);
     }
