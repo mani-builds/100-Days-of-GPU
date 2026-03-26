@@ -17,7 +17,7 @@ __global__ void simple_reduction_kernel(float *input, int N, float *output) {
 
   float sum = 0.0f;
   for (int k=0; k < SIZE / (BLOCK_SIZE*COARSE_FACTOR); k++){
-    if (threadIdx.x < BLOCK_SIZE && i + BLOCK_SIZE < N){
+    if (threadIdx.x < BLOCK_SIZE && i + k*BLOCK_SIZE < N){
     sum += input[i + k*BLOCK_SIZE]; // parital reduce to BLOCK_SIZE
     } else {
         sum += 0.0f;
