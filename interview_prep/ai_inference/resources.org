@@ -1,0 +1,4 @@
+* Inference Optimization
+- LLM Inference handbook (https://bentoml.com/llm/llm-inference-basics)
+- Attention mech. optimization (https://developer.nvidia.com/blog/mastering-llm-techniques-inference-optimization/)
+-
