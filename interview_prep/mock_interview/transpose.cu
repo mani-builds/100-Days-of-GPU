@@ -1,41 +1,29 @@
-
 #include <stdio.h>
 
-#define M 1024
-#define N 1024
+#define TILE 32
 
-#define TILE_SIZE 32
-
-__global__ void transpose(float *A, float *B) {
-
+__global__ void transpose(float *a, float *b, int M, int N) {
   // Threads to data
-  int col = TILE_SIZE * blockIdx.x + threadIdx.x;
-  int row = TILE_SIZE * blockIdx.y + threadIdx.y;
+  int col = blockIdx.x * TILE + threadIdx.x;
+  int row = blockIdx.y * TILE + threadIdx.y;
 
-  int tx = threadIdx.x;
-  int ty = threadIdx.y;
   // smem
-  __shared__ float As[TILE_SIZE][TILE_SIZE + 1]; // Avoid bank conflicts
-
-// implementation
-
-  if (row < M && col < N) {
-    As[ty][tx] = A[row * N + col];
+  __shared__ float as[TILE][TILE + 1];
+  if (row < M && col < N){
+  as[threadIdx.y][threadIdx.x] = a[row * N + col];
   }
-   __syncthreads();
-
-  int transposed_col = TILE_SIZE * blockIdx.y + threadIdx.x;
-  int transposed_row = TILE_SIZE * blockIdx.x + threadIdx.y;
-
+  __syncthreads();
+  // Logic implement
+  int t_col = TILE * blockIdx.y + threadIdx.x;
+  int t_row = TILE * blockIdx.x + threadIdx.y;
   // HBM
-  if (transposed_col < M && transposed_row < N)
-    B[transposed_row * M + transposed_col] = As[tx][ty];
-
+  if (t_row < N && t_col < M)
+  b[t_row * M + t_col] = as[threadIdx.x][threadIdx.y];
 }
 
 int main() {
-    // int M = 32; // number of rows
-    // int N = 48; // number of columns
+    int M = 2000; // number of rows
+    int N = 1000; // number of columns
 
     size_t bytes_A = M * N * sizeof(float);
     size_t bytes_B = N * M * sizeof(float);
@@ -62,10 +50,10 @@ for (int i = 0; i < 8 && i < M; ++i) {
 
     cudaMemcpy(d_A, h_A, bytes_A, cudaMemcpyHostToDevice);
 
-    dim3 blockDim(TILE_SIZE, TILE_SIZE);
-    dim3 gridDim((N + TILE_SIZE - 1) / TILE_SIZE, (M + TILE_SIZE - 1) / TILE_SIZE);
+    dim3 blockDim(TILE, TILE);
+    dim3 gridDim((N + TILE - 1) / TILE, (M + TILE - 1) / TILE);
 
-    transpose<<<gridDim, blockDim>>>(d_A, d_B);
+    transpose<<<gridDim, blockDim>>>(d_A, d_B, M, N);
 
     cudaMemcpy(h_B, d_B, bytes_B, cudaMemcpyDeviceToHost);
 

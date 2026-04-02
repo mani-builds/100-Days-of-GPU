@@ -16,6 +16,9 @@ __global__ void transpose(float *A, float *B) {
   int ty = threadIdx.y;
   // smem
   __shared__ float As[TILE_SIZE][TILE_SIZE + 1]; // Avoid bank conflicts
+  // Since, threads in a warp access shared mem elements in a column-wise
+  // like As[tx][ty], we need to avoid 32-way bank conflict, this can be
+  // done by add an extra dimenion to cols
 
 
   if (row < M && col < N) {

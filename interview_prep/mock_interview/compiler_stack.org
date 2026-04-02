@@ -1,0 +1,13 @@
+#+title: Compiler Stack (Graph to Hardware)
+As models grow increasingly complex — with billions of parameters and intricate architectures — and as hardware becomes more heterogeneous (CPUs, GPUs, TPUs, NPUs, and specialized accelerators), the role of compilers has become paramount. They are no longer just translation tools; they are sophisticated optimization engines that can make the difference between a model that takes hours to train versus minutes.
+
+* 3 Bridge Stages
+1. Graph Lowering: "We take Pytorch (computational) graph and break it into Linalg or TOSA(Tensor Operator Set Architecture) dialects in MLIR."
+2. Kernel Function: "We combine multiple patterns activations with matmul (or Conv + Bias + ReLU) at the IR level avoid writing back to Global Memory."
+3. Target-Specific Optimization: "We take the optimized IR and generate PTX (for NVIDIA) or LLVM IR(for CPU) that uses specific hardware features like Tensor Cores or AVX-512."
+
+* Optimization Techniques in ML Compilers
+1. Computation Graph Fusion
+2. Memory Layout Optimization (Tiling and blocking)
+3. Quantization and Pruning
+4. Parallelization strategies
