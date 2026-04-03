@@ -7,6 +7,10 @@ __constant__ float F[2*FILTER_RADIUS + 1][2*FILTER_RADIUS + 1];
 #define OUT_TILE_DIM ((IN_TILE_DIM) - 2*(FILTER_RADIUS))
 
 __global__ void convolution_tiled_2D_const_mem_kernel(float *N, float *P, int width, int height){
+
+  // Map to output
+    // The - FILTER_RADIUS is what allows the threads to load the  "halo"
+    // of the previous and next blocks.
   int col = blockIdx.x*OUT_TILE_DIM + threadIdx.x - FILTER_RADIUS;
   int row = blockIdx.y*OUT_TILE_DIM + threadIdx.y - FILTER_RADIUS;
   // loading input tiles

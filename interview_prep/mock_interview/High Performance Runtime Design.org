@@ -1,0 +1,51 @@
+#+title: High Performance Runtime Design
+
+* Memory Management
+Standard 'malloc' and 'cudaMalloc' are too slow for inference because they involve
+OS/driver overhead and synchronization. These cause fragmentation.
+
+** Slab allocator: Managing Small, Uniform Objects
+A Slab Allocator groups memory into "slabs" based on the size of the objects being stored. In the context of AI inference, it is highly effective for managing metadata and small, frequent allocations.
+Benefit: It eliminates external fragmentation because slots are perfectly sized for the objects. It also improves speed by reusing "warm" memory that is already initialized in the CPU cache.
+
+** Block allocators: Managing Large Tensor Buffers
+While slabs handle small objects, Block Allocators (often implemented as part of a memory pool) handle the heavy lifting: the actual multidimensional arrays (tensors).
+Used in Activation Buffers and KV cache.
+The Benefit: It prevents the high overhead of calling the GPU driver (e.g., cudaMalloc) during the critical path of inference.
+
+
+* Asynchronous Execution
+The goal is to keep GPUs busy while the CPU prepares the next task.
+** Asynchronous Concurrent Execution
+Ref: https://docs.nvidia.com/cuda/cuda-programming-guide/02-basics/asynchronous-execution.html#
+A typical example of a concurrent execution pattern is overlapping of host and device memory transfers with computation and thus reducing or eliminating their overhead.
+In Synchronizing CPU and GPU, the CUDA runtime function cudaDeviceSynchronize() was introduced, which is a blocking call which waits for all previously issued work to complete.The core API components for asynchronous execution in CUDA are CUDA Streams and CUDA Events.
+*** CUDA Streams
+At the most basic level, a CUDA stream is an abstraction which allows the programmer to express a sequence of operations. A stream operates like a work-queue into which programs can add operations, such as memory copies or kernel launches, to be executed in order. The order of execution of operations in a stream is sequential.
+An application may use multiple streams simultaneously. In such cases, the runtime will select a task to execute from the streams that have work available depending on the state of the GPU resources.
+The API function calls and kernel-launches operating in a stream are asynchronous with respect to the host thread.
+*** CUDA Events
+CUDA events are a mechanism for inserting markers into a CUDA stream. They are essentially used to track the progress of the tasks in a stream.
+Imagine launching two kernels into a stream. If we had an operation that was dependent on the output of the first kernel, we would not be able to start that operation safely until we knew the stream was empty by which time both kernels would have completed. By enqueuing an event into a stream directly after the first kernel, but before the second kernel, we can wait for this event to come to the front of the stream. Then, we can safely start our dependent operation knowing that the first kernel has completed.
+CUDA events can build up a graph of dependencies b/w operations and streams.(CUDA Graphs)
+*** CUDA Graphs (https://developer.nvidia.com/blog/cuda-graphs/)
+CUDA graphs present another model for work submission in CUDA. A graph is a series of kernel launches, data movement, etc. connected by dependencies, which is defined separately from execution. This allows the graph to be defined once, and then launched repeatedly.
+
+
+* Graph Scheduling (The DAG Executor)
+A Directed Acyclic Graph based workflow engine consists of nodes and directed edges. Here a node is a task (Kernel) and the edge represents dependency (memory dependency).
+** Key components:
+1. Nodes (Operators)
+   Nodes represent the individual units of work within the pipeline. In AI inference, these are usually:
+    Preprocessing: Resizing images, tokenizing text, or normalizing data.
+    Model Execution: The actual forward pass of a neural network.
+    Post-processing: Applying Softmax, decoding tokens, or drawing bounding boxes.
+2. Edges (Data Dependencies)
+   Edges are the directed links between nodes. They define the flow of data and, more importantly, the execution order.
+    Directed: Data flows in one specific direction (e.g., from Image Loader → CNN).
+3.The Scheduler
+The scheduler is the "brain" of the DAG. It analyzes the graph to determine which nodes can run simultaneously.
+    Parallelism: If two models don't depend on each other's output, the scheduler can fire them off on different GPU streams at the same time.
+    Resource Allocation: It maps nodes to specific hardware (e.g., CPU for preprocessing, GPU for inference).
+4. The Data Buffer / Context
+Since nodes pass data to one another, there needs to be a mechanism for memory management (often using the Block Allocator mentioned earlier).
