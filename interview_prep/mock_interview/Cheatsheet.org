@@ -1,0 +1,99 @@
+#+TITLE: System Design Interview Cheat Sheet (LLM + GPU + Distributed Systems)
+#+AUTHOR: Prep Notes
+#+DESCRIPTION: 1-page high-signal summary of key system design topics for LLM serving & Modular-style interviews
+
+* 1. LLM Inference Serving Systems
+- Core flow: tokenize → prefill → decode → KV cache reuse
+- Key metric: TTFT (time-to-first-token), tokens/sec
+- Techniques:
+  - Continuous batching (dynamic request joining during decoding)
+  - KV cache reuse (avoid recomputation)
+- Tradeoff: throughput ↑ vs latency ↑ with batching size
+- Key insight: decoding is sequential bottleneck
+
+* 2. GPU Scheduling & Load Balancing
+- Goal: maximize GPU utilization while minimizing tail latency
+- Inputs: GPU type (A100/T4/CPU), queue depth, latency stats
+- Methods:
+  - Weighted routing (faster GPUs get more load)
+  - Dynamic scheduling (feedback-based)
+  - Work queues per device
+- Metrics: tokens/sec, SM utilization, queue wait time
+- Key insight: heterogeneity requires performance-aware routing
+
+* 3. Distributed Systems Reliability (LLM Context)
+- Failures: slow node, partial responses, network drops
+- Detection:
+  - latency (TTFT, E2E)
+  - error rate
+  - throughput drop
+- Patterns:
+  - circuit breakers (stop sending traffic)
+  - retries (only safe/idempotent cases)
+  - graceful degradation (smaller model / lower batch)
+- In-flight handling:
+  - retry, checkpoint KV cache, or re-execute
+
+* 4. Scaling Systems (Horizontal)
+- Strategy: add nodes, not overload existing ones
+- Autoscaling signals:
+  - queue depth
+  - P95/P99 latency
+  - GPU utilization
+- Techniques:
+  - pre-warming GPU instances
+  - queue buffering (absorbs spikes)
+  - load shedding (drop low-priority requests)
+- Key insight: scaling is latency-control under burst uncertainty
+
+* 5. Compiler / Runtime Systems for ML
+- Pipeline:
+  frontend (PyTorch/JAX)
+  → IR (MLIR / XLA / Torch FX)
+  → optimization passes
+  → hardware backend (CUDA/ROCm/LLVM)
+- Optimizations:
+  - operator fusion
+  - memory planning
+  - constant folding
+- Runtime responsibilities:
+  - scheduling kernels
+  - memory management
+  - async execution
+- JIT vs AOT:
+  - AOT = faster startup
+  - JIT = adaptive optimization
+  - hybrid is common
+
+* 6. LLM Parallelism Strategies
+- Data parallelism: replicate model across GPUs
+- Tensor parallelism: split matrix ops across GPUs
+- Pipeline parallelism: split layers across devices
+- Tradeoffs:
+  - communication overhead (critical bottleneck)
+  - pipeline bubbles (latency)
+- Key insight: large models require hybrid parallelism
+
+* 7. Performance Metrics & Observability
+- Latency:
+  - TTFT, E2E latency, P95/P99 tail latency
+- Throughput:
+  - requests/sec, tokens/sec
+- GPU metrics:
+  - utilization, memory usage, kernel occupancy
+- Debug flow:
+  metrics → trace → bottleneck identification
+- Key insight: tail latency dominates UX (not average latency)
+
+* 8. Distributed Tracing Basics
+- Core idea: track request across services
+- Concepts:
+  - trace = full request path
+  - span = single operation
+- Mechanism:
+  - context propagation via trace IDs
+- Tools:
+  - OpenTelemetry (standard)
+  - Jaeger (visualization)
+- Sampling required at scale (avoid overhead explosion)
+- Key insight: tracing reveals cross-service latency bottlenecks

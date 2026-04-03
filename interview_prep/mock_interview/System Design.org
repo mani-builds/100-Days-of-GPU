@@ -1,0 +1,249 @@
+#+TITLE: LLM Systems & Infrastructure Interview Summaries
+#+AUTHOR: Gemini
+#+OPTIONS: toc:2
+
+* 2. Scheduling & Load Balancing for GPU Inference
+
+** Core idea
+You are deciding *which GPU runs which inference request, and when*, under constraints of latency, throughput, and heterogeneous hardware.
+
+** Key components
+- *Request queue*: Incoming prompts.
+- *Scheduler*: Decides assignment.
+- *GPU workers*: A100, T4, CPU fallback.
+- *Batching system*: Dynamic / continuous batching.
+
+** Key techniques
+*** 1. Continuous batching
+Instead of waiting for a full batch:
+- Add requests as tokens are being generated.
+- Improve GPU utilization.
+- Reduces idle time.
+
+*** 2. Heterogeneous scheduling
+Different GPUs have different compute power, memory bandwidth, and cost.
+- *Solution*: Use weighted routing and performance profiles per GPU.
++ *How it works*:
+    Weighted routing: Assigns incoming requests to GPUs based on their capcity or performance.
+    Example: If an A100 is 4x faster than a T4, you send 4x as many requests to the A100.
+
+Performance profiles: Each gpu maintains a profile of thruput, latency, memory limits(max batch size, model), etc.
+
+*** 3. Feedback-based scheduling
+Instead of static rules:
+- Track latency per node and tokens/sec.
+- Adjust routing dynamically.
++ *How it works*:
+  + Each GPU reports metrics (e.g., average latency, queue length) to the scheduler.
+  + The scheduler updates routing weights or priorities in real time.
+  + If a GPU slows down (e.g., due to a large batch or hardware issue), it receives fewer new requests until it recovers.
+
+
+** Core tradeoffs
+- *High batch size*: Throughput ↑ but latency ↑.
+- *Small batch*: Latency ↓ but GPU underutilized.
+- *Resource Imbalance*: Fast GPUs get overloaded unless properly weighted.
+
+** Interview signal
+Interviewer looks for:
+- Awareness of GPU heterogeneity.
+- Deep understanding of batching vs. latency tradeoffs.
+- Dynamic scheduling intuition.
+
+---
+
+* 3. Distributed Systems Reliability (LLM Serving Context)
+
+** Core idea
+Systems fail partially—not fully. You must ensure *graceful degradation* under real-world GPU + network failures.
+
+** Types of failures
+- GPU slowdowns (soft failure).
+- Node crashes (hard failure).
+- Network partitions.
+- Memory exhaustion.
+
+** Key mechanisms
+*** 1. Health detection
+Not just “alive/dead”:
+- Monitor latency (TTFT, E2E), error rates, and tokens/sec throughput.
+
+*** 2. Circuit breakers
+If a node degrades:
+- Stop sending traffic.
+- Reroute requests to prevent cascading failure.
+
+*** 3. Retries
+- Safe only for idempotent inference.
+- May re-run on a different GPU.
+
+*** 4. Graceful degradation
+- Reduce batch size.
+- Use a fallback model (smaller size).
+- Switch to lower precision inference.
+
+** In-flight requests problem
+*Challenge*: Node fails mid-generation.
+*Solutions*:
+- Retry from scratch.
+- Checkpoint KV cache (advanced).
+- Speculative duplicate execution.
+
+** Interview signal
+Interviewer looks for:
+- Partial failure thinking.
+- Resilience patterns.
+- Production reliability mindset.
+
+---
+
+* 4. Scaling Systems (Horizontal Scaling)
+
+** Core idea
+Handle traffic spikes by *adding compute*, not overloading existing machines.
+
+** Scaling strategies
+*** 1. Horizontal scaling
+- Add more GPU nodes.
+- Utilize stateless inference servers.
+
+*** 2. Autoscaling triggers
+Based on:
+- Queue depth.
+  + ~Queue depth~ is the number of inference requests waiting to be processed.
+- Latency (P95/P99).
+  + ~P95~ (95th percentile) and ~P99~ (99th percentile) latency measure how long the slowest 5% or 1% of requests take.
+  + High tail latency means some users are experiencing delays, even if average latency is low.
+  + If P95/P99 latency rises above a target, the autoscaler adds more GPUs to reduce wait times.
+- GPU utilization.
+
+*** 3. Backpressure
+When the system is overloaded:
+- Queue requests.
+- Reject low-priority requests.
+- Degrade gracefully.
+
+** Burst handling strategies
+- *Pre-warming*: Keep idle GPUs ready to reduce cold start latency.
+- *Queue buffering*: Absorbs spikes, trading latency for stability.
+- *Load shedding*: Drop or delay low priority requests.
+
+** Key insight
+Scaling is not just “adding machines”; it’s about *latency control under uncertainty*.
+
+** Interview signal
+Interviewer looks for:
+- Understanding of bottlenecks.
+- Queueing theory intuition.
+- Real-world tradeoffs (not idealized scaling).
+
+---
+
+* 6. Compiler / Runtime Systems for ML
+
+** Core idea
+Make ML execution *hardware-agnostic + optimized* by separating "what to compute" from "how to compute it."
+
+** Pipeline
+1. *Frontend*: PyTorch / JAX model converted to a computation graph.
+2. *IR (Intermediate Representation)*: (e.g., MLIR, XLA HLO, Torch FX) Hardware-independent optimization layer.
+3. *Optimization passes*: Operator fusion, constant folding, memory planning, layout optimization.
+4. *Lowering*: Convert IR → backend (CUDA, ROCm, LLVM).
+
+** Key idea: Operator fusion
+Instead of running ~matmul → bias → activation~ separately, fuse them into a *single kernel*.
+- *Benefits*: Fewer memory accesses, higher throughput.
+
+** Runtime layer
+Handles:
+- Scheduling kernels.
+- Memory allocation.
+- Device coordination and async execution.
+
+** JIT vs AOT
+- *AOT (Ahead-of-Time)*: Compile before execution (fast startup).
+- *JIT (Just-in-Time)*: Compile during runtime (adaptive optimization).
+- *Note*: Most systems use a hybrid.
+
+** Interview signal
+Interviewer looks for:
+- IR thinking.
+- Compiler pipeline understanding.
+- Performance awareness.
+
+---
+
+* 7. Parallelism in LLM Systems
+
+** Core idea
+Split model execution across GPUs to scale large models.
+
+** Types
+- *Data parallelism*: Same model, different data (simplest).
+- *Tensor parallelism*: Split matrix ops across GPUs (required for large models).
+- *Pipeline parallelism*: Split layers across GPUs (introduces latency bubbles).
+
+** Tradeoffs
+- *Tensor*: Communication heavy.
+- *Pipeline*: Latency overhead.
+- *Hybrid*: Best in practice.
+
+** Key issue: Communication overhead
+- NVLink significantly helps performance.
+- PCIe can be a major bottleneck.
+
+** Interview signal
+Interviewer looks for:
+- Awareness of model scaling constraints.
+- Communication vs. compute tradeoffs.
+
+---
+
+* 8. Performance Metrics & Observability
+
+** Core idea
+You cannot optimize what you cannot measure.
+
+** Key metrics
+*** Latency
+- TTFT (Time To First Token).
+- Total inference latency.
+- P95 / P99 tail latency.
+
+*** Throughput
+- Tokens/sec.
+- Requests/sec.
+
+*** GPU metrics
+- Utilization (% SM usage).
+- Memory usage.
+- Kernel occupancy.
+
+** Why tail latency matters
+"The Tail at Scale" problem: A few slow requests dominate user experience.
+
+** Observability stack
+1. *Logging*: Request and error logs.
+2. *Metrics*: Prometheus-style counters.
+3. *Tracing*: Request journey across services.
+
+** Debugging flow
+1. Detect slowdown (metrics).
+2. Trace request path.
+3. Identify bottleneck (GPU vs. queue vs. network).
+
+** Interview signal
+Interviewer looks for:
+- Ability to debug real systems.
+- Understanding of production observability.
+
+---
+
+* 9. Distributed Tracing Basics
+
+** Core idea
+Track a request as it moves across services in a distributed system.
+
+** Key concepts
+- *Trace*: The entire request journey.
+- *Span*: A single operation inside a

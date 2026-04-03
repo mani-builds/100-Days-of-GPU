@@ -9,7 +9,7 @@ A Slab Allocator groups memory into "slabs" based on the size of the objects bei
 Benefit: It eliminates external fragmentation because slots are perfectly sized for the objects. It also improves speed by reusing "warm" memory that is already initialized in the CPU cache.
 
 ** Block allocators: Managing Large Tensor Buffers
-While slabs handle small objects, Block Allocators (often implemented as part of a memory pool) handle the heavy lifting: the actual multidimensional arrays (tensors).
+While slabs handle small objects, Block Allocators (often implemented as part of a memory pool) handle the heavy lifting: the actual *multidimensional arrays* (tensors).
 Used in Activation Buffers and KV cache.
 The Benefit: It prevents the high overhead of calling the GPU driver (e.g., cudaMalloc) during the critical path of inference.
 
@@ -18,7 +18,7 @@ The Benefit: It prevents the high overhead of calling the GPU driver (e.g., cuda
 The goal is to keep GPUs busy while the CPU prepares the next task.
 ** Asynchronous Concurrent Execution
 Ref: https://docs.nvidia.com/cuda/cuda-programming-guide/02-basics/asynchronous-execution.html#
-A typical example of a concurrent execution pattern is overlapping of host and device memory transfers with computation and thus reducing or eliminating their overhead.
+A typical example of a *concurrent* execution pattern is overlapping of host and device memory transfers with computation and thus reducing or eliminating their overhead.
 In Synchronizing CPU and GPU, the CUDA runtime function cudaDeviceSynchronize() was introduced, which is a blocking call which waits for all previously issued work to complete.The core API components for asynchronous execution in CUDA are CUDA Streams and CUDA Events.
 *** CUDA Streams
 At the most basic level, a CUDA stream is an abstraction which allows the programmer to express a sequence of operations. A stream operates like a work-queue into which programs can add operations, such as memory copies or kernel launches, to be executed in order. The order of execution of operations in a stream is sequential.
