@@ -125,6 +125,13 @@ When the system is overloaded:
 
 ** Burst handling strategies
 - *Pre-warming*: Keep idle GPUs ready to reduce cold start latency.
+  + *How to prewarm a GPU:*
+    + *Load the model weights into GPU memory*
+      + This is the slowest step, especially for large LLMs.
+    + *Run a dummy inference or "warmup" request*
+      + This triggers kernel compilation (if using JIT), memory allocation, and operator fusion.
+      + Ensures all lazy initializations are complete.
+
 - *Queue buffering*: Absorbs spikes, trading latency for stability.
 - *Load shedding*: Drop or delay low priority requests.
 
@@ -149,6 +156,8 @@ Make ML execution *hardware-agnostic + optimized* by separating "what to compute
 2. *IR (Intermediate Representation)*: (e.g., MLIR, XLA HLO, Torch FX) Hardware-independent optimization layer.
 3. *Optimization passes*: Operator fusion, constant folding, memory planning, layout optimization.
 4. *Lowering*: Convert IR → backend (CUDA, ROCm, LLVM).
+
+NOTE: These are a lot of abstractions, think of how NVCC converts source code to PTX assembly. Therefore, slower than handwritten-kernels.
 
 ** Key idea: Operator fusion
 Instead of running ~matmul → bias → activation~ separately, fuse them into a *single kernel*.
@@ -190,7 +199,14 @@ Split model execution across GPUs to scale large models.
 
 ** Key issue: Communication overhead
 - NVLink significantly helps performance.
+  + ~NVLink~ is a high-speed GPU interconnect developed by NVIDIA.
+    + Provides much higher bandwidth and lower latency than traditional PCIe.
+    + Enables faster data transfer between GPUs, reducing communication bottlenecks.
 - PCIe can be a major bottleneck.
+  + ~PCIe~ (Peripheral Component Interconnect Express) is a general-purpose bus used in most servers.
+    + Has lower bandwidth and higher latency compared to NVLink.
+    + Can become a major bottleneck when large amounts of data need to be exchanged between GPUs.
+
 
 ** Interview signal
 Interviewer looks for:
@@ -246,4 +262,4 @@ Track a request as it moves across services in a distributed system.
 
 ** Key concepts
 - *Trace*: The entire request journey.
-- *Span*: A single operation inside a
+- *Span*: A single operation inside trace
