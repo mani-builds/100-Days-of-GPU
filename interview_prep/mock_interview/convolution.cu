@@ -12,6 +12,7 @@ __global__ void conv(float *a, int M, int N, float *b) {
     int row = blockIdx.y * OUT_TILE + threadIdx.y - FILTER_RADIUS;
     int col = blockIdx.x * OUT_TILE + threadIdx.x - FILTER_RADIUS;
 
+  // Launch IN_TILE x IN_TILE threads
   int tx = threadIdx.x;
   int ty = threadIdx.y;
 
