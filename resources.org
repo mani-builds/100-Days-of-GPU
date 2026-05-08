@@ -1,0 +1,7 @@
+* GPU related
+- (CheatSheet) High level overview of GPU glossary (hardware and software): https://modal.com/gpu-glossary
+
+* Inference Optimization
+- LLM Inference handbook (https://bentoml.com/llm/llm-inference-basics)
+- Attention mech. optimization (https://developer.nvidia.com/blog/mastering-llm-techniques-inference-optimization/)
+-

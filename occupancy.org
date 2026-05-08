@@ -1,0 +1,34 @@
+#+title: Occupancy
+
+Occupancy is the ratio of 'actual active warps' to the 'maximum active warps' in a SM.
+
+There are two types of Occupancy:
+1. Theoretical: Upper limit of occupancy due to device capabilities and kernel launch configurations.
+2. Actual: Measures occupancy during kernel execution, aka on active cycles
+
+Eg:
+Consider an NVIDIA H100 GPU, which has these specifications:
+
+Maximum warps/SM: 64
+Maximum blocks/SM: 32
+(32 bit) Registers: 65536
+Shared memory (smem): 228 KB
+
+For a kernel using 32 threads per thread block , 8 registers per thread , and 12 KB shared  memory per thread block , we end up limited by shared memory :
+
+Warps/block = 32 threads/block / 32 threads/warp = 1 (< 64)
+Blocks/register-file = 65536 registers/register-file / (32 * 8 registers/block) = 256 blocks/register-file (> 32)
+Blocks/smem = 228 KB/smem / 12KB/block = 19 block/smem
+
+So Active Blocks = min(19, 256, 32 (device capability))  = 19
+
+Occupancy = Active Warps / Max Warps = (19 blocks * 1 warp/block) = 64 warps/SM = 19/64 =29.7%
+
+
+When to Ignore Low Occupancy:
+
+You might look at 29.7% and think it’s bad, but in modern AI kernels (especially those using Triton or FlashAttention), this is often intentional.
+
+If your 19 warps are keeping the Tensor Cores 100% busy, adding more warps won't make the kernel faster—it might actually make it slower by increasing "register pressure" or causing "cache thrashing." In high-performance GPU programming, utilization (how busy the math units are) is a much more important metric than occupancy.
+
+Register pressure: If there are more registers, then it'll spill and causes the SM to use less than capable blocks per SM
